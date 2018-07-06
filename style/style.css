@@ -1,0 +1,12 @@
+p,h1,h2,h3,h4,h5{
+    color:white;
+}
+
+.header{
+    text-align: center;
+    width: 100%;
+}
+
+#counter, #logsContainer {
+    text-align: center;
+}

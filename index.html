@@ -1,0 +1,105 @@
+<html lang="en">
+
+<head>
+    <title>Sharepoint Service</title>
+    <link rel="stylesheet" href="./style/bootstrap-lux.css" />
+    <link rel="stylesheet" href="./style/style.css" />
+</head>
+
+<body class="bg-primary">
+    <div class="header">
+        <h1>Sharepoint RO Service</h1>
+        <p id="userName"></p>
+    </div>
+
+    <h2 id="counter">00:00:00</h2>
+    <div id="logsContainer">
+        <h1>Logs</h1>
+    </div>
+    <ul id="logsHolder" class="list-group">
+    </ul>
+
+    <!-- Insert this line above script imports  -->
+    <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
+
+    <!-- normal script imports etc  -->
+    <script src="scripts/jquery.min.js"></script>
+
+    <!-- Insert this line after script imports -->
+    <script>if (window.module) module = window.module;</script>
+    <script>
+
+
+        const counter = document.querySelector('#counter');
+        const logsHolder = document.querySelector('#logsHolder')
+
+        var fire = true;
+        var seconds = 0, minutes = 0, hours = 0, t;
+
+        function add() {
+            seconds++;
+            if (seconds == 1) {
+                fireApi();
+            }
+            if (seconds >= 60) {
+                seconds = 0;
+                minutes++;
+                fireApi();
+                if (minutes >= 60) {
+                    minutes = 0;
+                    hours++;
+                }
+            }
+
+
+
+            counter.textContent = (hours ? (hours > 9 ? hours : '0' + hours) : '00') + ':' + (minutes ? (minutes > 9 ? minutes : '0' + minutes) : '00') + ':' + (seconds > 9 ? seconds : '0' + seconds);
+            timer();
+        }
+
+        function timer() {
+            t = setTimeout(add, 1000);
+        }
+
+
+        const postData = (url = '', data = {}) => {
+            if (fire === true) {
+                fire = false;
+                // Default options are marked with *
+                return fetch(url, {
+                    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+                    headers: {
+                        'Content-Type': 'application/json; charset=utf-8',
+                    },
+                    body: JSON.stringify(data), // body data type must match 'Content-Type' header
+                }).then(response => response.json(), err => console.log(err))
+            }
+
+        };
+
+        function fireApi() {
+            $.ajax({
+                type: "POST",
+                url: "http://localhost:45046/api/sp/RadixOneSingleSaving",
+                success: function (data) {
+                    console.log(data)
+                    //             fire = true;
+                    //             if (data.length > 0) {
+                    //                 logsHolder.innerHTML += '<li class="list-group-item">' + data.length + '</li>'
+                    //             }
+                },
+                error: function (request, status, error) {
+                    console.log(error.responseText);
+                    console.log(status);
+                    console.log(error);
+                    //             fire = true;
+                    //             logsHolder.innerHTML += '<li class="list-group-item text-danger">' + JSON.stringify(error) + '</li>'
+                }
+            });
+        }
+
+        timer();
+    </script>
+</body>
+
+</html>
