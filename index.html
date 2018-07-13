@@ -9,7 +9,6 @@
 <body class="bg-primary">
     <div class="header">
         <h1>Sharepoint RO Service</h1>
-        <p id="userName"></p>
     </div>
 
     <h2 id="counter">00:00:00</h2>
@@ -61,42 +60,35 @@
             t = setTimeout(add, 1000);
         }
 
-
-        const postData = (url = '', data = {}) => {
+        function fireApi() {
+            console.log(fire);
             if (fire === true) {
                 fire = false;
-                // Default options are marked with *
-                return fetch(url, {
-                    method: 'POST', // *GET, POST, PUT, DELETE, etc.
-                    headers: {
-                        'Content-Type': 'application/json; charset=utf-8',
-                    },
-                    body: JSON.stringify(data), // body data type must match 'Content-Type' header
-                }).then(response => response.json(), err => console.log(err))
+                console.log("fired");
+                $.ajax({
+                    type: "POST",
+                    url: "http://localhost:45046/api/sp/RadixOneSingleSaving"
+                }).done(function (data) {
+                    if (data.length > 0) {
+                        logsHolder.innerHTML += '<li class="list-group-item">' + data.length + '</li>'
+                    }
+                }).fail(function (error) {
+                    if(error.status == 0)
+                    {
+                        var dt = new Date();
+                        logsHolder.innerHTML += '<li class="list-group-item text-danger"> Cannot connect to API ' + d+ ' </li>'
+                    }
+                    else
+                    {
+                        logsHolder.innerHTML += '<li class="list-group-item text-danger">' + JSON.stringify(error) + '</li>'
+                    }
+                    
+                }).always(function () {
+                    fire = true;
+                });
             }
-
-        };
-
-        function fireApi() {
-            $.ajax({
-                type: "POST",
-                url: "http://localhost:45046/api/sp/RadixOneSingleSaving",
-                success: function (data) {
-                    console.log(data)
-                    //             fire = true;
-                    //             if (data.length > 0) {
-                    //                 logsHolder.innerHTML += '<li class="list-group-item">' + data.length + '</li>'
-                    //             }
-                },
-                error: function (request, status, error) {
-                    console.log(error.responseText);
-                    console.log(status);
-                    console.log(error);
-                    //             fire = true;
-                    //             logsHolder.innerHTML += '<li class="list-group-item text-danger">' + JSON.stringify(error) + '</li>'
-                }
-            });
         }
+
 
         timer();
     </script>

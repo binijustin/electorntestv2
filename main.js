@@ -4,14 +4,7 @@ const path = require("path");
 
 const { app, BrowserWindow, Menu } = electron;
 
-let userSettings;
-
 let mainWindow;
-
-//get user settings
-// const settingsFile = fs.readFileSync("./filesettings.json")
-// const settingsJson = settingsFile.toString('utf8');
-// userSettings = JSON.parse(settingsJson);
 
 //Set Env 
 process.env.NODE_ENV = 'development';
