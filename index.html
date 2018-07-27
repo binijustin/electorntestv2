@@ -27,6 +27,20 @@
     <!-- Insert this line after script imports -->
     <script>if (window.module) module = window.module;</script>
     <script>
+        const { remote } = require('electron')
+        const { Menu, MenuItem } = remote
+
+        const menu = new Menu()
+        menu.append(new MenuItem({ label: 'MenuItem1', click() { console.log('item 1 clicked') } }))
+        menu.append(new MenuItem({ type: 'separator' }))
+        menu.append(new MenuItem({ label: 'MenuItem2', type: 'checkbox', checked: true }))
+
+        window.addEventListener('contextmenu', (e) => {
+            e.preventDefault()
+            menu.popup({ window: remote.getCurrentWindow() })
+        }, false)
+    </script>
+    <script>
 
 
         const counter = document.querySelector('#counter');
@@ -68,21 +82,20 @@
                 $.ajax({
                     type: "POST",
                     url: "http://localhost:45046/api/sp/RadixOneSingleSaving"
+                    //url : "http://localhost:60159/api/sp/RadixOne"
                 }).done(function (data) {
                     if (data.length > 0) {
                         logsHolder.innerHTML += '<li class="list-group-item">' + data.length + '</li>'
                     }
                 }).fail(function (error) {
-                    if(error.status == 0)
-                    {
+                    if (error.status == 0) {
                         var dt = new Date();
-                        logsHolder.innerHTML += '<li class="list-group-item text-danger"> Cannot connect to API ' + d+ ' </li>'
+                        logsHolder.innerHTML += '<li class="list-group-item text-danger"> Cannot connect to API ' + dt + ' </li>'
                     }
-                    else
-                    {
+                    else {
                         logsHolder.innerHTML += '<li class="list-group-item text-danger">' + JSON.stringify(error) + '</li>'
                     }
-                    
+                    console.log(error)
                 }).always(function () {
                     fire = true;
                 });
