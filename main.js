@@ -7,7 +7,8 @@ const { app, BrowserWindow, Menu } = electron;
 let mainWindow;
 
 //Set Env 
-process.env.NODE_ENV = 'development';
+// process.env.NODE_ENV = 'development';
+process.env.NODE_ENV = 'production';
 
 //Listen for app to be ready
 app.on('ready', function () {
@@ -67,7 +68,7 @@ if (process.platform == "darwin") {
     mainMenuTemplate.unshift({});
 }
 
-if (process.env.NODE_ENv !== 'production') {
+if (process.env.NODE_ENV !== 'production') {
     mainMenuTemplate.push({
         label: 'Developer Tools',
         submenu: [

@@ -12,42 +12,93 @@
     </div>
 
     <h2 id="counter">00:00:00</h2>
+
     <div id="logsContainer">
         <h1>Logs</h1>
     </div>
-    <ul id="logsHolder" class="list-group">
-    </ul>
+
+    <table id="tblLogs" class="table table-default">
+        <thead>
+            <tr>
+
+                <th width="10%">Status Code </th>
+                <th width="90%">Data</th>
+
+            </tr>
+        </thead>
+        <tbody id="tblLogsHolder">
+
+        </tbody>
+    </table>
 
     <!-- Insert this line above script imports  -->
-    <script>if (typeof module === 'object') { window.module = module; module = undefined; }</script>
+    <script>
+        if (typeof module === 'object') {
+            window.module = module;
+            module = undefined;
+        }
+    </script>
 
     <!-- normal script imports etc  -->
     <script src="scripts/jquery.min.js"></script>
+    <script src="node_modules/file-saverjs/FileSaver.js"></script>
+    <script src="node_modules/tableexport/dist/js/tableexport.js"></script>
 
     <!-- Insert this line after script imports -->
-    <script>if (window.module) module = window.module;</script>
     <script>
-        const { remote } = require('electron')
-        const { Menu, MenuItem } = remote
+        if (window.module) module = window.module;
+    </script>
 
+    <script>
+        const {
+            remote
+        } = require('electron')
+        const {
+            Menu,
+            MenuItem
+        } = remote
         const menu = new Menu()
-        menu.append(new MenuItem({ label: 'MenuItem1', click() { console.log('item 1 clicked') } }))
-        menu.append(new MenuItem({ type: 'separator' }))
-        menu.append(new MenuItem({ label: 'MenuItem2', type: 'checkbox', checked: true }))
-
-        window.addEventListener('contextmenu', (e) => {
-            e.preventDefault()
-            menu.popup({ window: remote.getCurrentWindow() })
-        }, false)
+        menu.append(new MenuItem({
+            label: 'Download Excel',
+            click() {
+                const dt = new Date();
+                var fName = 'Service Report ' + (dt.getMonth() + 1) + '/' +
+                    dt.getDate() + '/' + dt.getFullYear();
+                var table = TableExport(document.getElementById("tblLogs"), {
+                    headers: true,
+                    footers: true,
+                    formats: ['csv'],
+                    filename: fName,
+                    bootstrap: false,
+                    exportButtons: false,
+                    position: 'bottom',
+                    ignoreRows: null,
+                    ignoreCols: null,
+                    trimWhitespace: true
+                });
+                var exportData = table.getExportData()['tblLogs']['csv'];
+                table.export2file(exportData.data,
+                    exportData.mimeType, exportData.filename, exportData.fileExtension);
+            }
+        }))
+        window.addEventListener('contextmenu',
+            (e) => {
+                e.preventDefault()
+                menu.popup({
+                    window: remote.getCurrentWindow()
+                })
+            }, false)
     </script>
     <script>
-
-
         const counter = document.querySelector('#counter');
-        const logsHolder = document.querySelector('#logsHolder')
+        const logsHolder = document.querySelector('#logsHolder');
+        const tblLogsHolder = document.querySelector('#tblLogsHolder');
 
-        var fire = true;
-        var seconds = 0, minutes = 0, hours = 0, t;
+        var fire = true; //marker if they can fire the api
+        var seconds = 0,
+            minutes = 0,
+            hours = 0,
+            t;
 
         function add() {
             seconds++;
@@ -66,7 +117,9 @@
 
 
 
-            counter.textContent = (hours ? (hours > 9 ? hours : '0' + hours) : '00') + ':' + (minutes ? (minutes > 9 ? minutes : '0' + minutes) : '00') + ':' + (seconds > 9 ? seconds : '0' + seconds);
+            counter.textContent = (hours ? (hours > 9 ? hours : '0' + hours) : '00') + ':' + (minutes ? (
+                minutes > 9 ? minutes : '0' + minutes) : '00') + ':' + (seconds > 9 ? seconds : '0' +
+                    seconds);
             timer();
         }
 
@@ -75,25 +128,25 @@
         }
 
         function fireApi() {
-            console.log(fire);
             if (fire === true) {
                 fire = false;
-                console.log("fired");
                 $.ajax({
                     type: "POST",
-                    url: "http://localhost:45046/api/sp/RadixOneSingleSaving"
+                    url: "http://localhost:45046/api/spo/RadixOne"
                     //url : "http://localhost:60159/api/sp/RadixOne"
                 }).done(function (data) {
                     if (data.length > 0) {
-                        logsHolder.innerHTML += '<li class="list-group-item">' + data.length + '</li>'
+                        tblLogsHolder.innerHTML += '<tr><td>200</td><td>' + data.length + '</td></tr>'
                     }
                 }).fail(function (error) {
                     if (error.status == 0) {
                         var dt = new Date();
-                        logsHolder.innerHTML += '<li class="list-group-item text-danger"> Cannot connect to API ' + dt + ' </li>'
-                    }
-                    else {
-                        logsHolder.innerHTML += '<li class="list-group-item text-danger">' + JSON.stringify(error) + '</li>'
+
+                        tblLogsHolder.innerHTML += '<tr><td>' + error.status +
+                            '</td><td class="text-danger"> Cannot connect to API ' + dt + '</td></tr>'
+                    } else {
+                        tblLogsHolder.innerHTML += '<tr><td>' + error.status +
+                            '</td><td class=" text-danger">' + JSON.stringify(error) + '</td></tr>';
                     }
                     console.log(error)
                 }).always(function () {
