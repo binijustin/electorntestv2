@@ -132,8 +132,8 @@
                 fire = false;
                 $.ajax({
                     type: "POST",
-                    url: "http://localhost:45046/api/spo/RadixOne"
-                    //url : "http://localhost:60159/api/sp/RadixOne"
+                    //url: "http://localhost:45046/api/spo/RadixOne"
+                    url : "http://localhost:60159/api/sp/RadixOne"
                 }).done(function (data) {
                     if (data.length > 0) {
                         tblLogsHolder.innerHTML += '<tr><td>200</td><td>' + data.length + '</td></tr>'
